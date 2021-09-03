@@ -16,7 +16,7 @@ function App() {
         <Route exact path="/">
             <ReviewList></ReviewList>
         </Route>
-        <Route path="/plant/:plantName/:plantURI">
+        <Route path="/plants/:plantName">
           <Plant></Plant>
         </Route>
       </Switch>

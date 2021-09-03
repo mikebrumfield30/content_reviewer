@@ -5,12 +5,12 @@ import { Button } from 'react-bootstrap';
 
 function Plant(props) {
   // const plantURI  = props.uri
-  let { plantName, plantURI } = useParams()
+  let { plantName } = useParams()
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [images, setImage] = useState([]);
   useEffect(() => {
-    fetch(`http://localhost:3001/plants/${plantURI}`)
+    fetch(`http://localhost:3001/plants/${plantName}`)
       .then(res => res.json())
       .then(
         (result) => {
@@ -49,15 +49,28 @@ function Plant(props) {
             <p>Height: {image.height}, Width: {image.width}</p>
             <div style={{padding: "4px"}}>
               <col-6 style={{padding: "4px"}}>
-                <Button variant="success" onClick={() => {
+                <Button variant="success" onClick={async () => {
                   console.log(`${image.id} for ${plantName} approved`)
-                  // fetch for approval server method
+                  await fetch(`http://localhost:3001/plants/accept/${image.id}`, {method: 'POST'})
+                    .then(() => {
+                      const index = images.indexOf(image);
+                      if (index > -1) {
+                        images.splice(index, 1);
+                      }
+                    })
+                  window.location.reload()
                 }}>Approve</Button>
               </col-6>
               <col-6 style={{padding: "4px"}}>
                 <Button variant="danger" onClick={async () => {
                   console.log(`${image.id} for ${plantName} declined`)
-                  await fetch(`http://localhost:3001/plants/${plantURI}/${image.id}`, {method: 'DELETE'})
+                  await fetch(`http://localhost:3001/plants/${image.id}`, {method: 'DELETE'})
+                    .then(() => {
+                      const index = images.indexOf(image);
+                      if (index > -1) {
+                        images.splice(index, 1);
+                      }
+                    })
                   window.location.reload()
                 }}>Deny</Button >
               </col-6>

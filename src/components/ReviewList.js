@@ -33,8 +33,8 @@ function ReviewList() {
                 {items.map(plant => {
                     return <li style={{
                         display: 'block'
-                    }} key={plant.plantName}>
-                        <Link to={`/plant/${plant.plantName}/${plant.s3KeyEncoded}`}><h4>{plant.plantName}</h4></Link>
+                    }} key={plant}>
+                        <Link to={`/plants/${plant}`}><h4>{plant}</h4></Link>
                     </li>
                 })}
             </ul>

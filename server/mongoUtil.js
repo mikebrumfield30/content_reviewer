@@ -5,6 +5,7 @@ const mongoUrl = config.mongoUrl;
 const client = new MongoClient(mongoUrl);
 const dbName = config.dbName
 const reviewCollectionName = config.reviewCollectionName
+const acceptedCollectionName = config.acceptedCollectionName
 
 async function run() {
     try {
@@ -29,33 +30,24 @@ async function getPlants() {
 
     
         const imagesForReview = database.collection(reviewCollectionName);
-    
-        // query for movies that have a runtime less than 15 minutes
-    
+        
         const query = {};
     
         const options = {
-    
-          // Include only the `title` and `imdb` fields in each returned document
-    
+        
           projection: { _id: 0, id: 1, url: 1, plantName: 1 },
     
         };
     
         const cursor = imagesForReview.find(query, options);
-    
-        // print a message if no documents were found
-    
+        
         if ((await cursor.count()) === 0) {
     
           console.log("No documents found!");
     
         }
-    
-        // replace console.dir with your callback to access individual elements
-    
+        
         await cursor.forEach(x => {
-          // console.log(x)
           plants.push(x)
         });
     
@@ -88,7 +80,7 @@ async function getPlantsByName(name) {
     
           // Include only the `title` and `imdb` fields in each returned document
     
-          projection: { _id: 0, id: 1, url: 1, plantName: 1 },
+          projection: { _id: 0 },
     
         };
     
@@ -150,6 +142,55 @@ async function deletePlantById(id) {
       }
 }
 
+async function getPlantById(id) {
+  var plant;
+  try {
 
-  module.exports = {run, getPlants, getPlantsByName, deletePlantById}
+    await client.connect();
+
+    const database = client.db(dbName);
+
+    const imagesForReview = database.collection(reviewCollectionName);
+    const query = {id: id};
+
+    const options = {
+    
+      projection: { _id: 0},
+
+    };
+
+    plant = await imagesForReview.findOne(query, options);
+
+    if (await plant === null) {
+      console.log("Plant not found");
+
+    }
+
+  } finally {
+    
+    await client.close();
+    return plant;
+  }
+}
+
+async function insertPlantToAcceptedCol(plant) {
+  var result;
+  try {
+
+    await client.connect();
+
+    const database = client.db(dbName);
+
+    const acceptedCol = database.collection(acceptedCollectionName);
+
+    result = await acceptedCol.insertOne(plant)
+
+  } finally {
+    
+    await client.close();
+    return result;
+  }
+}
+
+  module.exports = {run, getPlants, getPlantsByName, deletePlantById, getPlantById, insertPlantToAcceptedCol}
 
